@@ -20,7 +20,7 @@ class State:
         self.y_scroll = 0
         self.x_scroll = 0
         self.last_find = ""
-        if editor is not None:
+        if editor:
             self.store(editor)
 
     def store(self, editor):
@@ -507,7 +507,7 @@ class Editor(Viewer):
 
         self.store_state()
         cur = self.cursor()
-        if col is not None:
+        if col:
             cur.x = col
         cur.y = line_no
         if cur.y >= len(self.lines):
