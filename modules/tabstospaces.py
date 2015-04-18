@@ -1,5 +1,6 @@
 from mod_base import *
 
+
 class TabsToSpaces(Command):
     def __init__(self):
         pass

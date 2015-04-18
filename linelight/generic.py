@@ -1,5 +1,6 @@
 from helpers import *
 
+
 #TODO: improve this
 def parse(raw_line):
     color = 0

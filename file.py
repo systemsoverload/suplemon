@@ -6,8 +6,9 @@ File object for storing an opened file and editor.
 import os
 import time
 
+
 class File:
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         self.parent = parent
         self.name = ""
         self.fpath = ""
@@ -33,11 +34,11 @@ class File:
 
     def log(self, s):
         self.parent.logger.log(s)
-            
+
     def set_name(self, name):
         # TODO: sanitize
         self.name = name
-        
+
     def set_path(self, path):
         self.fpath, self.name = self.parse_path(path)
 
@@ -45,7 +46,7 @@ class File:
         self.data = data
         if self.editor:
             self.editor.set_data(data)
-                
+
     def set_editor(self, editor):
         self.editor = editor
         ext = self.name.split(".")
@@ -53,10 +54,9 @@ class File:
             editor.set_file_extension(ext[-1])
 
     def set_saved(self, m):
-         self.last_save = time.time()
+        self.last_save = time.time()
 
     def save(self):
-        path = self._path()
         data = self.editor.get_data()
         try:
             f = open(self._path(), "w")
@@ -71,7 +71,6 @@ class File:
     def load(self, read=True):
         if not read:
             return True
-        path = self._path()
         try:
             f = open(self._path())
             data = f.read()
@@ -87,6 +86,6 @@ class File:
 
     def reload(self):
         return self.load()
-        
+
     def is_changed(self):
         return self.editor.get_data() != self.data

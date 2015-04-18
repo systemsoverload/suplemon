@@ -21,9 +21,10 @@ def wrapper(func):
     import curses.textpad
     curses.wrapper(func)
 
+
 class InputEvent:
     def __init__(self):
-        self.type = None # 'key' or 'mouse'
+        self.type = None  # 'key' or 'mouse'
         self.key_name = None
         self.key_code = None
         self.mouse_code = None
@@ -45,7 +46,7 @@ class InputEvent:
 
     def _key_name(self, key):
         """Return the curses key name for keys received from get_wch."""
-        if type(key) == type(""):
+        if isinstance(key, str):
             return str(curses.keyname(ord(key)).decode("utf-8"))
         return False
 
@@ -59,10 +60,11 @@ class InputEvent:
         ]
         return " ".join(parts)
 
+
 class UI:
     def __init__(self, app):
         self.app = app
-       
+
     def load(self):
         """Load an setup curses."""
         self.screen = curses.initscr()
@@ -74,7 +76,7 @@ class UI:
 
         self.screen.keypad(1)
 
-        self.current_yx = self.screen.getmaxyx() # For checking resize
+        self.current_yx = self.screen.getmaxyx()  # For checking resize
         self.setup_mouse()
         self.setup_windows()
 
@@ -86,16 +88,16 @@ class UI:
         # Mouse support
         curses.mouseinterval(10)
         if self.app.config["editor"]["use_mouse"]:
-            curses.mousemask(-1) # All events
+            curses.mousemask(-1)  # All events
         else:
-            curses.mousemask(0) # All events
+            curses.mousemask(0)  # All events
 
     def setup_colors(self):
         """Initialize color support and define colors."""
         curses.start_color()
         curses.use_default_colors()
 
-        if curses.can_change_color(): # Can't get these to work :(
+        if curses.can_change_color():  # Can't get these to work :(
             #curses.init_color(11, 254, 0, 1000)
             pass
 
@@ -107,7 +109,7 @@ class UI:
 
         # Higlight colors:
         black = curses.COLOR_BLACK
-        curses.init_pair(10, -1, -1) # Default (white on black)
+        curses.init_pair(10, -1, -1)  # Default (white on black)
 
         curses.init_pair(11, curses.COLOR_BLUE, black)
         curses.init_pair(12, curses.COLOR_CYAN, black)
@@ -121,12 +123,12 @@ class UI:
         try:
             # TODO: Define RGB forthese to avoid getting
             # different results in different terminals
-            curses.init_pair(11, 69, black) # blue
-            curses.init_pair(12, 81, black) # cyan
-            curses.init_pair(13, 119, black) # green
-            curses.init_pair(14, 171, black) # magenta
-            curses.init_pair(15, 197, black) # red
-            curses.init_pair(17, 221, black) # yellow
+            curses.init_pair(11, 69, black)  # blue
+            curses.init_pair(12, 81, black)  # cyan
+            curses.init_pair(13, 119, black)  # green
+            curses.init_pair(14, 171, black)  # magenta
+            curses.init_pair(15, 197, black)  # red
+            curses.init_pair(17, 221, black)  # yellow
         except:
             self.app.logger.log("Enhanced colors failed to load.")
 
@@ -152,8 +154,8 @@ class UI:
             self.legend_win = curses.newwin(2, yx[1], yx[0]-y_sub, 0)
 
         if resize:
-            self.app.get_editor().resize( (yx[0]-y_sub, yx[1]) )
-            self.app.get_editor().move_win( (y_start, 0) )
+            self.app.get_editor().resize((yx[0]-y_sub, yx[1]))
+            self.app.get_editor().move_win((y_start, 0))
 
     def size(self):
         """Get terminal size."""
@@ -169,11 +171,11 @@ class UI:
 
     def resize(self, yx=None):
         """Resize UI to yx."""
-        if yx == None:
+        if yx is None:
             yx = self.screen.getmaxyx()
         self.screen.clear()
         curses.resizeterm(yx[0], yx[1])
-        self.setup_windows(resize = True)
+        self.setup_windows(resize=True)
         self.screen.refresh()
 
     def check_resize(self):
@@ -200,7 +202,7 @@ class UI:
         head_parts = []
         if display["show_app_name"]:
             head_parts.append("Suplemon Editor v"+self.app.version)
-        
+
         # Add module statuses to the status bar
         for name in self.app.modules.modules.keys():
             module = self.app.modules.modules[name]
@@ -208,21 +210,21 @@ class UI:
                 status = module.get_status()
                 if status:
                     head_parts.append(status)
-                
+
         if display["show_file_list"]:
             head_parts.append(self.file_list_str())
 
         head = " - ".join(head_parts)
-        head = head + ( " " * (self.screen.getmaxyx()[1]-len(head)-1) )
+        head = head + (" " * (self.screen.getmaxyx()[1]-len(head)-1))
         if len(head) >= size[0]:
             head = head[:size[0]-1]
-        self.header_win.addstr(0,0, head, curses.color_pair(0) | curses.A_REVERSE)
+        self.header_win.addstr(0, 0, head, curses.color_pair(0) | curses.A_REVERSE)
         self.header_win.refresh()
-        
+
     def file_list_str(self):
         """Return rotated file list beginning at current file as a string."""
         curr_file_index = self.app.current_file_index()
-        files = self.app.get_files();
+        files = self.app.get_files()
         file_list = files[curr_file_index:] + files[:curr_file_index]
         str_list = []
         for f in file_list:
@@ -238,8 +240,8 @@ class UI:
         editor = self.app.get_editor()
         size = self.size()
         cur = editor.cursor()
-        data = "@ "+str(cur[0])+","+str(cur[1])+" "+\
-            "cur:"+str(len(editor.cursors))+" "+\
+        data = "@ " + str(cur[0]) + "," + str(cur[1]) + " " + \
+            "cur:" + str(len(editor.cursors)) + " " + \
             "buf:"+str(len(editor.buffer))
         if self.app.config["app"]["debug"]:
             data += " cs:"+str(editor.current_state)+" hist:"+str(len(editor.history))  # Undo / Redo debug
@@ -252,7 +254,7 @@ class UI:
         for name in self.app.modules.modules.keys():
             module = self.app.modules.modules[name]
             if module.options["status"] == "bottom":
-                data += " " + module.get_status();
+                data += " " + module.get_status()
 
         self.status_win.clear()
         status = self.app.get_status()
@@ -262,9 +264,9 @@ class UI:
         if len(line) >= size[0]:
             line = line[:size[0]-1]
 
-        self.status_win.addstr(0,0, line, curses.color_pair(0) | curses.A_REVERSE)
+        self.status_win.addstr(0, 0, line, curses.color_pair(0) | curses.A_REVERSE)
         self.status_win.refresh()
-        
+
     def show_legend(self):
         """Show keyboard legend."""
         self.legend_win.clear()
@@ -318,9 +320,10 @@ class UI:
 
         # If input begins with prompt, remove the prompt text
         if len(out) >= len(text):
-           if out[:len(text)] == text:
+            if out[:len(text)] == text:
                 out = out[len(text):]
-        if len(out) > 0 and out[-1] == " ": out = out[:-1]
+        if len(out) > 0 and out[-1] == " ":
+            out = out[:-1]
         out = out.rstrip("\r\n")
         return out
 
@@ -328,7 +331,7 @@ class UI:
         result = self._query(text, initial)
         return result
 
-    def query_bool(self, text, default = False):
+    def query_bool(self, text, default=False):
         indicator = "[y/N]"
         initial = ""
         if default:
@@ -382,7 +385,7 @@ class UI:
     def _translate_mouse_to_editor(self, state):
         """Translate the screen coordinates to a position in the editor view."""
         editor = self.app.get_editor()
-        x,y = (state[1], state[2])
+        x, y = (state[1], state[2])
         if self.app.config["display"]["show_top_bar"]:
             y -= 1
         x -= editor.line_offset()

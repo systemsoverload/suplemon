@@ -6,6 +6,7 @@ import time
 
 from helpers import *
 
+
 class Logger:
     def __init__(self, filename="log.txt"):
         self.filename = None
@@ -18,7 +19,7 @@ class Logger:
         }
 
     def log(self, data, log_type=3):
-        self.entries.append( (log_type, str(data), time.time()) )
+        self.entries.append((log_type, str(data), time.time()))
 
     def output(self):
         for entry in self.entries:
@@ -31,7 +32,7 @@ class Logger:
                 print("Shit! Failed to print a log entry and forgot to write it in a file :(")
                 print("Here's why:")
                 print(get_error_info())
-            
+
     def get_type_str(self, log_type):
         if log_type in self.labels.keys():
             return self.labels[log_type]

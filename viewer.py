@@ -4,15 +4,13 @@ Text Viewer component subclassed by Editor.
 """
 
 import os
-import re
-import sys
 import imp
-import time
 import curses
 
 from line import *
 from cursor import *
 from helpers import *
+
 
 class Viewer:
     def __init__(self, app, window):
@@ -22,8 +20,8 @@ class Viewer:
         self.data = ""
         self.lines = [Line()]
         self.file_extension = ""
-        
-        self.linelighter = lambda line: 0 # Dummy linelighter returns default color
+
+        self.linelighter = lambda line: 0  # Dummy linelighter returns default color
         self.show_line_ends = True
 
         self.cursor_style = curses.A_UNDERLINE
@@ -60,13 +58,13 @@ class Viewer:
 
         if not mod or not "parse" in dir(mod):
             return False
-            
+
         self.linelighter = mod.parse
 
     def size(self):
         """Get editor size (x,y)."""
-        y,x = self.window.getmaxyx()
-        return (x,y)
+        y, x = self.window.getmaxyx()
+        return (x, y)
 
     def cursor(self):
         """Return the main cursor."""
@@ -97,7 +95,7 @@ class Viewer:
         # FIXME: Unify storing lines as Line instances
         str_lines = []
         for line in self.lines:
-            if type(line) == type(""):
+            if isinstance(line, str):
                 str_lines.append(line)
             else:
                 str_lines.append(line.data)
@@ -173,7 +171,7 @@ class Viewer:
         max_len = self.max_line_length()
         while i < max_y:
             lnum = i + self.y_scroll
-            if lnum >= len(self.lines): # Make sure we have a line to show
+            if lnum >= len(self.lines):  # Make sure we have a line to show
                 break
 
             line = self.lines[lnum]
@@ -202,21 +200,24 @@ class Viewer:
     def render_cursors(self):
         """Render editor window cursors."""
         max_x, max_y = self.size()
-        main = self.cursor()
         for cursor in self.cursors:
             x = cursor.x - self.x_scroll + self.line_offset()
             y = cursor.y - self.y_scroll
-            if y < 0: continue
-            if y >= max_y: break
-            if x < self.line_offset(): continue 
-            if x > max_x-1: continue 
+            if y < 0:
+                continue
+            if y >= max_y:
+                break
+            if x < self.line_offset():
+                continue
+            if x > max_x-1:
+                continue
             self.window.chgat(y, cursor.x+self.line_offset()-self.x_scroll, 1, self.cursor_style)
 
     def refresh(self):
         """Refresh the editor curses window."""
         self.window.refresh()
 
-    def resize(self, yx = None):
+    def resize(self, yx=None):
         """Resize the UI."""
         if not yx:
             yx = self.window.getmaxyx()
@@ -229,7 +230,7 @@ class Viewer:
         # Must try & catch since mvwin might
         # crash with incorrect coordinates
         try:
-            self.window.mvwin( yx[0], yx[1] )
+            self.window.mvwin(yx[0], yx[1])
         except:
             self.app.log(get_error_info(), LOG_WONTFIX)
 
@@ -240,18 +241,22 @@ class Viewer:
     def move_cursors(self, delta=None, noupdate=False):
         """Move all cursors with delta. To avoid refreshing the screen set noupdate to True."""
         for cursor in self.cursors:
-            if delta != None:
+            if delta is not None:
                 if delta[0] != 0 and cursor.x >= 0:
                     cursor.x += delta[0]
                 if delta[1] != 0 and cursor.y >= 0:
                     cursor.y += delta[1]
 
-            if cursor.x < 0: cursor.x = 0
-            if cursor.y < 0: cursor.y = 0
-            if cursor.y >= len(self.lines)-1: cursor.y = len(self.lines)-1
-            if cursor.x >= len(self.lines[cursor.y]): cursor.x = len(self.lines[cursor.y])
+            if cursor.x < 0:
+                cursor.x = 0
+            if cursor.y < 0:
+                cursor.y = 0
+            if cursor.y >= len(self.lines)-1:
+                cursor.y = len(self.lines)-1
+            if cursor.x >= len(self.lines[cursor.y]):
+                cursor.x = len(self.lines[cursor.y])
 
-        cur = self.cursor() # Main cursor
+        cur = self.cursor()  # Main cursor
         size = self.size()
         offset = self.line_offset()
         if len(self.cursors) == 1:
@@ -263,7 +268,7 @@ class Viewer:
             # -1 to allow space for cursor at line end
             self.x_scroll = len(self.lines[cur.y]) - size[0]+offset+1
         if cur.x - self.x_scroll < 0:
-            self.x_scroll  -= abs(cur.x - self.x_scroll) # FIXME
+            self.x_scroll  -= abs(cur.x - self.x_scroll)  # FIXME
         if cur.x - self.x_scroll+offset < offset:
             self.x_scroll -= 1
         if not noupdate:
@@ -285,11 +290,12 @@ class Viewer:
                 if cursor.x > col:
                     cursor.x += delta
 
-    def move_y_cursors(self, line, delta, exclude = None):
+    def move_y_cursors(self, line, delta, exclude=None):
         """Move all cursors starting at line and col with delta on the y axis.
         Exlude a cursor by passing it via the exclude argument."""
         for cursor in self.cursors:
-            if cursor == exclude: continue
+            if cursor == exclude:
+                continue
             if cursor.y > line:
                     cursor.y += delta
 
@@ -297,7 +303,7 @@ class Viewer:
         """Get the first (primary) cursor."""
         highest = None
         for cursor in self.cursors:
-            if highest == None or cursor.y <  highest.y:
+            if not highest or cursor.y < highest.y:
                 highest = cursor
         return highest
 
@@ -305,12 +311,12 @@ class Viewer:
         """Get the last cursor."""
         lowest = None
         for cursor in self.cursors:
-            if lowest == None:
+            if not lowest:
                 lowest = cursor
             elif cursor.y > lowest.y:
                 lowest = cursor
             elif cursor.y == lowest.y and cursor.x > lowest.x:
-                 lowest = cursor
+                lowest = cursor
         return lowest
 
     def get_cursors_on_line(self, line_no):
@@ -332,7 +338,7 @@ class Viewer:
 
     def cursor_exists(self, cursor):
         """Check if a given cursor exists."""
-        return cursor.tuple() in [cursor.tuple() for cursor in self.cursors]
+        return cursor.tuple() in [c.tuple() for c in self.cursors]
 
     def remove_cursor(self, cursor):
         """Remove a cursor object from the cursor list."""
@@ -351,7 +357,7 @@ class Viewer:
         ref = []
         for cursor in self.cursors:
             if not cursor.tuple() in ref:
-                ref.append( cursor.tuple() )
+                ref.append(cursor.tuple())
                 new.append(cursor)
         self.cursors = new
         self.render()

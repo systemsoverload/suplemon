@@ -1,5 +1,6 @@
 from helpers import *
 
+
 def parse(raw_line):
     color = 0
     line = raw_line.strip()

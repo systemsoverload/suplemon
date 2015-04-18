@@ -2,12 +2,13 @@
 """
 Cursor object for storing cursor data.
 """
-    
+
+
 class Cursor:
     def __init__(self, x=0, y=0):
         # Handle coords as a tuple
-        if type(x) == type((0,)):
-            x,y = x
+        if isinstance(x, tuple):
+            x, y = x
             self.x = x
             self.y = y
         # Handle coords from existing Cursor
@@ -18,7 +19,7 @@ class Cursor:
         else:
             self.x = x
             self.y = y
-        
+
     def __getitem__(self, i):
         """Get coordinates with list indices."""
         if i == 0:

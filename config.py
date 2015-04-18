@@ -8,6 +8,7 @@ import json
 
 from helpers import *
 
+
 class Config:
     def __init__(self, app):
         self.app = app
@@ -21,11 +22,11 @@ class Config:
             },
             "editor": {
                 "auto_indent_newline": True,
-                "cursor": "reverse", # reverse or underline
+                "cursor": "reverse",  # reverse or underline
                 "default_encoding": "utf-8",
                 "tab_width": 4,
                 "max_history": 50,
-                "punctuation": " (){}[]'\"=+-/*.:,;_", # for jumping between words
+                "punctuation": " (){}[]'\"=+-/*.:,;_",  # for jumping between words
                 "line_end_char": "",
                 "white_space_char": "\u25E6",
                 "show_white_space": False,
@@ -71,7 +72,7 @@ class Config:
     def reload(self):
         """Reload the config file."""
         return self.load()
-        
+
     def store(self):
         """Write current config state to file."""
         data = json.dumps(self.config)
@@ -90,7 +91,7 @@ class Config:
                 if not sec_key in config[prim_key].keys():
                     config[prim_key][sec_key] = curr_item[sec_key]
         return config
- 
+
     def __getitem__(self, i):
         """Get a config variable."""
         return self.config[i]
@@ -100,7 +101,7 @@ class Config:
         self.config[i] = v
 
     def __str__(self):
-        """Convert entire config array to string.""" 
+        """Convert entire config array to string."""
         return str(self.config)
 
     def __len__(self):

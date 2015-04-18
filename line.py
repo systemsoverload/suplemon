@@ -3,6 +3,7 @@
 Line object to represent a single line in the text editor.
 """
 
+
 class Line:
     def __init__(self, data=""):
         if isinstance(data, Line):
@@ -21,7 +22,7 @@ class Line:
 
     def __add__(self, other):
         return Line(self.data + other)
-    
+
     def __radd__(self, other):
         return Line(other + self.data)
 
@@ -33,4 +34,3 @@ class Line:
 
     def strip(self, *args):
         return self.data.strip(*args)
-

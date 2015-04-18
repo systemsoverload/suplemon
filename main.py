@@ -8,7 +8,6 @@ __version__ = "0.1.0"
 
 import os
 import sys
-import time
 
 import ui
 import modules
@@ -18,6 +17,7 @@ from logger import *
 from config import *
 from editor import *
 from file import *
+
 
 class App:
     def __init__(self):
@@ -35,7 +35,7 @@ class App:
         self.logger = Logger()
         self.config = Config(self)
         self.config.load()
-        self.ui = ui.UI(self) # Load user interface
+        self.ui = ui.UI(self)  # Load user interface
 
         # Load extension modules
         self.modules = modules.ModuleLoader(self)
@@ -52,7 +52,6 @@ class App:
         """Load the app."""
         self.ui.load()
         self.load_files()
-        loaded = True
 
     def exit(self):
         """Stop the main loop and exit."""
@@ -128,22 +127,37 @@ class App:
 
     def handle_key(self, event):
         """Handle a keyboard event."""
-        if event.key_name == "^H": self.help()                 # Ctrl + H
-        elif event.key_name == "^S": self.save_file()          # Ctrl + S
-        elif event.key_name == "^E": self.run_command()        # Ctrl + E
-        elif event.key_name == "^F": self.find()               # Ctrl + F
-        elif event.key_name == "^G": self.go_to()              # Ctrl + G
-        elif event.key_name == "^O": self.open()               # Ctrl + O
-        elif event.key_name == "^K": self.close_file()         # Ctrl + K
-        elif event.key_name == "^N": self.new_file()           # Ctrl + N
-        elif event.key_name == "^X": self.ask_exit()           # Ctrl + X
+        if event.key_name == "^H":
+            self.help()                 # Ctrl + H
+        elif event.key_name == "^S":
+            self.save_file()          # Ctrl + S
+        elif event.key_name == "^E":
+            self.run_command()        # Ctrl + E
+        elif event.key_name == "^F":
+            self.find()               # Ctrl + F
+        elif event.key_name == "^G":
+            self.go_to()              # Ctrl + G
+        elif event.key_name == "^O":
+            self.open()               # Ctrl + O
+        elif event.key_name == "^K":
+            self.close_file()         # Ctrl + K
+        elif event.key_name == "^N":
+            self.new_file()           # Ctrl + N
+        elif event.key_name == "^X":
+            self.ask_exit()           # Ctrl + X
 
-        elif event.key_code == 554: self.prev_file()           # Ctrl + Page Up
-        elif event.key_code == 549: self.next_file()           # Ctrl + Page Down
-        elif event.key_code == 265: self.save_file()           # F1
-        elif event.key_code == 266: self.reload_file()         # F2
-        elif event.key_code == 272: self.toggle_mouse()        # F8
-        elif event.key_code == 275: self.toggle_fullscreen()   # F12
+        elif event.key_code == 554:
+            self.prev_file()           # Ctrl + Page Up
+        elif event.key_code == 549:
+            self.next_file()           # Ctrl + Page Down
+        elif event.key_code == 265:
+            self.save_file()           # F1
+        elif event.key_code == 266:
+            self.reload_file()         # F2
+        elif event.key_code == 272:
+            self.toggle_mouse()        # F8
+        elif event.key_code == 275:
+            self.toggle_fullscreen()   # F12
         else:
             return False
         return True
@@ -199,7 +213,8 @@ class App:
 
     def next_file(self):
         """Switch to next file."""
-        if len(self.files) < 2: return
+        if len(self.files) < 2:
+            return
         cur = self.current_file
         cur += 1
         if cur > len(self.files)-1:
@@ -208,7 +223,8 @@ class App:
 
     def prev_file(self):
         """Switch to previous file."""
-        if len(self.files) < 2: return
+        if len(self.files) < 2:
+            return
         cur = self.current_file
         cur -= 1
         if cur < 0:
@@ -220,7 +236,7 @@ class App:
         input_str = self.ui.query("Go to:")
         lineno = None
         fname = None
-        if input_str == False:
+        if not input_str:
             return False
         if input_str.find(":") != -1:
             parts = input_str.split(":")
@@ -266,9 +282,9 @@ class App:
             return False
         parts = data.split(" ")
         cmd = parts[0].lower()
-        self.logger.log("Looking for command '" + cmd +"'", LOG_INFO)
+        self.logger.log("Looking for command '" + cmd + "'", LOG_INFO)
         if cmd in self.modules.modules.keys():
-            self.logger.log("Trying to run command '" + cmd +"'", LOG_INFO)
+            self.logger.log("Trying to run command '" + cmd + "'", LOG_INFO)
             self.get_editor().store_action_state(cmd)
             self.modules.modules[cmd].run(self, self.get_editor())
         else:
@@ -367,7 +383,7 @@ class App:
             if self.get_file().reload():
                 return True
         return False
-        
+
     def get_files(self):
         """Return list of open files."""
         return self.files
@@ -401,10 +417,10 @@ class App:
         if len(sys.argv) > 1:
             names = sys.argv[1:]
             for name in names:
-                if self.file_is_open(name): continue
-                if self.open_file(name):
-                    loaded = True
-                else:
+                if self.file_is_open(name):
+                    continue
+
+                if not self.open_file(name):
                     self.new_file(name)
         else:
             self.load_default()
@@ -444,4 +460,3 @@ if __name__ == "__main__":
     # Output log info
     if app.config["app"]["debug"]:
         app.logger.output()
-    

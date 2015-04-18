@@ -1,6 +1,7 @@
 import time
 from mod_base import *
- 
+
+
 class Battery(Command):
     def __init__(self):
         self.last_value = None
@@ -33,8 +34,8 @@ class Battery(Command):
         except:
             return False
         try:
-            max_cap = float( get_string_between("last full capacity:", "mWh", path_info) )
-            cur_cap = float( get_string_between("remaining capacity:", "mWh", path_state) )
+            max_cap = float(get_string_between("last full capacity:", "mWh", path_info))
+            cur_cap = float(get_string_between("remaining capacity:", "mWh", path_state))
             return int(cur_cap / max_cap * 100)
         except:
             return False
@@ -44,7 +45,7 @@ class Battery(Command):
         data = f.read()
         f.close()
         return data
- 
+
 module = {
     "class": Battery,
     "name": "battery",
